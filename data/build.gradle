@@ -1,0 +1,63 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'me.tatarka:gradle-retrolambda:3.2.3'
+  }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+  defaultPublishConfig "debug"
+
+  compileSdkVersion setup.compileSdk
+  buildToolsVersion setup.buildTools
+
+  defaultConfig {
+    minSdkVersion setup.minSdk
+    targetSdkVersion setup.targetSdk
+    versionCode setup.androidVersionCode
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  packagingOptions {
+    exclude 'LICENSE.txt'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/ASL2.0'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/LICENSE'
+  }
+
+  lintOptions {
+    quiet true
+    abortOnError false
+    ignoreWarnings true
+    disable 'InvalidPackage' // Some libraries have issues with this
+    disable 'OldTargetApi' // Due to Robolectric that modifies the manifest when running tests
+  }
+}
+
+dependencies {
+  compile project(':domain')
+
+  provided "javax.annotation:jsr250-api:${versions.javaxAnnotationVersion}"
+  compile "javax.inject:javax.inject:${versions.javaxInjectVersion}"
+  compile "com.squareup.okhttp:okhttp:${versions.okHttpVersion}"
+  compile "com.google.code.gson:gson:${versions.gsonVersion}"
+  compile "io.reactivex.rxjava2:rxjava:${versions.rxJavaVersion}"
+  compile "io.reactivex.rxjava2:rxandroid:${versions.rxAndroidVersion}"
+  compile "com.android.support:support-annotations:${versions.androidAnnotationsVersion}"
+
+  testCompile "junit:junit:${versions.jUnitVersion}"
+  testCompile "org.assertj:assertj-core:${versions.assertJVersion}"
+  testCompile "org.mockito:mockito-core:${versions.mockitoVersion}"
+  testCompile "org.robolectric:robolectric:${versions.robolectricVersion}"
+}

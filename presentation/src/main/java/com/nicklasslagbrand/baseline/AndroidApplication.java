@@ -1,0 +1,61 @@
+/**
+ * Copyright (C) 2015 Fernando Cejas Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.nicklasslagbrand.baseline;
+
+import android.app.Application;
+import com.squareup.leakcanary.LeakCanary;
+import com.nicklasslagbrand.baseline.di.components.ApplicationComponent;
+import com.nicklasslagbrand.baseline.di.components.DaggerApplicationComponent;
+import com.nicklasslagbrand.baseline.di.modules.ApplicationModule;
+import com.nicklasslagbrand.baseline.presentation.BuildConfig;
+import timber.log.Timber;
+
+/**
+ * Android Main Application
+ */
+public class AndroidApplication extends Application {
+
+    private ApplicationComponent applicationComponent;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        this.initializeTimber();
+        this.initializeInjector();
+        this.initializeLeakDetection();
+    }
+
+    private void initializeTimber() {
+        Timber.plant(new Timber.DebugTree());
+    }
+
+    private void initializeInjector() {
+        this.applicationComponent = DaggerApplicationComponent.builder()
+                                                              .applicationModule(new ApplicationModule(this))
+                                                              .build();
+    }
+
+    public ApplicationComponent getApplicationComponent() {
+        return this.applicationComponent;
+    }
+
+    private void initializeLeakDetection() {
+        if (BuildConfig.DEBUG) {
+            LeakCanary.install(this);
+        }
+    }
+}
